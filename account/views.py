@@ -4,6 +4,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from trader.models import Trader
 from .models import Customer
+from stock.models import Stock
+from order.models import Order
+from watchlist.models import Watchlist
 from .serializers import ChangePasswordSerializer, CustomerSerializer
 from rest_framework.response import Response
 from django.contrib.auth import authenticate,login,logout
@@ -60,8 +63,8 @@ class update_trader(APIView):
         cust=Customer.objects.get(user=request.user)
         if cust is None:
             return Response({"Message":"You are not an valid user"})
-        Trader.objects.create(cust=cust,Artist=True)
-        return Response({'message': 'Artist Created Successfully'})
+        Trader.objects.create(cust=cust,Trader=True)
+        return Response({'message': 'Trader Created Successfully'})
 
 
 
@@ -124,50 +127,81 @@ def testEndPoint(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def addBalance(request):
+def addBalance(request,pk=None):
     if request.method == 'GET':
         data = f"{request.user}"
         return Response({'response': data}, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        text = request.POST.get('text')
-        data = f'Congratulation your API just responded to POST request with text: {text}'
-        return Response({'response': data}, status=status.HTTP_200_OK)
+        deposit = pk
+        cust=Customer.objects.get(user=request.user)
+        previous_balance=Customer.balance
+        new_balance=pk+previous_balance
+        cust.balance=new_balance
+        cust.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': cust.balance}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def withdrawBalance(request):
+def withdrawBalance(request,pk=None):
     if request.method == 'GET':
         data = f"{request.user}"
         return Response({'response': data}, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        text = request.POST.get('text')
-        data = f'Congratulation your API just responded to POST request with text: {text}'
+        credit = pk
+        cust=Customer.objects.get(user=request.user)
+        previous_balance=Customer.balance
+        new_balance=previous_balance-pk
+        cust.balance=new_balance
+        cust.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': cust.balance}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def buyStock(request,pk=None,id=None):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        quantity=id
+        price=pk
+        user=Customer.objects.get(user=request.user)
+        stock=Stock.objects.get(id=pk)
+        order=Order.create(
+            quantity=quantity,
+            price=price,
+            user=user,
+            stock=stock,
+        )
+        order.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
         return Response({'response': data}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def buyStock(request):
+def sellStock(request,pk=None,id=None):
     if request.method == 'GET':
         data = f"{request.user}"
         return Response({'response': data}, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        text = request.POST.get('text')
-        data = f'Congratulation your API just responded to POST request with text: {text}'
-        return Response({'response': data}, status=status.HTTP_200_OK)
-    return Response({}, status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def sellStock(request):
-    if request.method == 'GET':
-        data = f"{request.user}"
-        return Response({'response': data}, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        text = request.POST.get('text')
-        data = f'Congratulation your API just responded to POST request with text: {text}'
+        quantity=id
+        price=pk
+        user=Customer.objects.get(user=request.user)
+        stock=Stock.objects.get(id=pk)
+        order=Order.create(
+            quantity=quantity,
+            price=price,
+            user=user,
+            stock=stock,
+            buy=False,
+        )
+        order.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
         return Response({'response': data}, status=status.HTTP_200_OK)
     return Response({}, status.HTTP_400_BAD_REQUEST)
 
@@ -186,7 +220,88 @@ def buyOption(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def selOption(request):
+def sellOption(request):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        text = request.POST.get('text')
+        data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def hireTrader(request,pk):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        id=pk
+        trader=Trader.objects.get(id=pk)
+        user=Customer.objects.get(user=request.user)
+        trader.clients=trader.clients+user
+        trader.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def searchTrader(request,pk=None):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        id=pk
+        trader=Trader.objects.get(id=pk)
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def seeRecordOfTrader(request,pk=None):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        id=pk
+        trader=Trader.objects.get(id=pk)
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def addToWatchlist(request,pk=None,id=None):
+    if request.method == 'GET':
+        data = f"{request.user}"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        stock=Stock.objects.get(id=pk)
+        user=Customer.objects.get(user=request.user)
+        watchlist=Watchlist(
+            stock=stock,
+            user=user,
+        )
+        watchlist.save()
+        # data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def status(request):
     if request.method == 'GET':
         data = f"{request.user}"
         return Response({'response': data}, status=status.HTTP_200_OK)
