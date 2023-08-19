@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from django.db.models import Q
 from cloudinary.forms import cl_init_js_callbacks      
 from rest_framework.decorators import api_view, permission_classes
+import requests
+
 
 
 
@@ -19,10 +21,48 @@ class StockSearchAPIView(APIView):
 
 
 class Home(APIView):
-    def get(self,*args,**kwargs):
-        data = Stock.objects.all()
-        serializer = StockSerializer(data,many=True)
-        return Response(serializer.data)
+    def get(self, request):
+        def get_stock_price(symbol):
+            api_key = "Y5CIFL2TLHX4S7C6"  # Replace with your Alpha Vantage API key
+            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}"
+
+            try:
+                response = requests.get(url)
+                data = response.json()
+
+                if "Error Message" in data:
+                    return None
+
+                stock_info = data["Global Quote"]
+                price = stock_info["05. price"]
+                volume = int(stock_info["06. volume"])
+                return {"price": price, "volume": volume}
+
+            except requests.exceptions.RequestException:
+                return None
+
+        symbols = ["AAPL", "TSLA","MSFT","JPM","V"]
+        stock_prices = {}
+        for symbol in symbols:
+            price = get_stock_price(symbol)
+            if price:
+                stock_prices[symbol] = price
+
+        return Response(stock_prices)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class StockAPIView(APIView):

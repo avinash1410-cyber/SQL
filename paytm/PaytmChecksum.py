@@ -4,7 +4,7 @@ import random
 import hashlib
 import sys
 
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 
 iv = '@@@@&&&&####$$$$'

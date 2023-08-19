@@ -14,6 +14,13 @@ from design.serializers import DesignSerilaizer
 #         fields='__all__'
 
 
+class MarketSerializer(serializers.Serializer):
+    symbol = serializers.CharField()
+    price = serializers.FloatField()
+
+
+
+
 class StockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stock

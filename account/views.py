@@ -14,6 +14,19 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+
+
+
+
+
+
+
 @api_view(('GET','POST'))
 def register_page(request):
     if request.method == "POST":
@@ -34,6 +47,7 @@ def register_page(request):
 
 @api_view(('GET','POST'))
 def login_page(request):
+    print("IN LOGIN")
     if request.method == "POST":
         username = request.data['username']
         password=request.data['password']
@@ -41,6 +55,7 @@ def login_page(request):
         user=authenticate(request,username=username,password=password)
         if user is not None:
             login(request,user)
+            print(request.user)
             return Response({"message":"Login done"})
         else:
             return Response({"message":"Invalid Credentials"})
@@ -120,9 +135,10 @@ def testEndPoint(request):
         return Response({'response': data}, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         text = request.POST.get('text')
-        data = f'Congratulation your API just responded to POST request with text: {text}'
+        data = f'Congratulations, your API just responded to the POST request with text: {text}'
         return Response({'response': data}, status=status.HTTP_200_OK)
-    return Response({}, status.HTTP_400_BAD_REQUEST)
+    return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['GET', 'POST'])
@@ -301,7 +317,7 @@ def addToWatchlist(request,pk=None,id=None):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def status(request):
+def Status(request):
     if request.method == 'GET':
         data = f"{request.user}"
         return Response({'response': data}, status=status.HTTP_200_OK)

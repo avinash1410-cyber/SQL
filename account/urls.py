@@ -19,7 +19,6 @@ urlpatterns = [
     path('trader/<int:pk>/',seeRecordOfTrader),
     path('addBalance/<int:pk>/',addBalance),
     path('withdrawBalance/<int:pk>/',withdrawBalance),
-    path('status',status),
-    path('status/<int:pk>',status),
-
+    # path('status',Status),
+    # path('status/<int:pk>',status),
 ]
