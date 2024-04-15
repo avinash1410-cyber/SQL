@@ -4,8 +4,6 @@ from account.models import Customer
 
 # Create your models here.
 class Watchlist(models.Model):
-    stock=models.ForeignKey(Stock,null=True,blank=True,on_delete=models.CASCADE)
-    user=models.ForeignKey(Customer,null=True,blank=True,on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.stock.name+""+str(self.id)
+    name=models.CharField(max_length=100,null=True,blank=True)
+    stock=models.ManyToManyField(Stock,null=True,blank=True)
+    cust=models.ForeignKey(Customer,null=True,blank=True,on_delete=models.CASCADE)
